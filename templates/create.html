@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+    <div class="row justify-content-center mt-5">
+      <div class="col-md-6">
+        <div class="card">
+            <form method="post">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Заголовок</label>
+                    <input type="text" class="form-control" id="title" name="title" required>
+                </div>
+                <div class="mb-3">
+                    <textarea class="card-control" name="content" id="content" required width="400px" height="200px"></textarea>
+                </div>
+                <div class="text-center">
+                    <button name="button" type="submit" class="btn btn-primary">Создать</button>
+                </div>
+            </form>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    <script>
+     const exform = document.querySelector('form');
+    exform.addEventListener('submit', handleSubmit);
+
+    async function handleSubmit(event){
+        event.preventDefault();
+        const form = event.currentTarget;
+        const url = form.action;
+        try {
+            const formData = new FormData(form);
+            const responseData = await postFormDataAsJson({url, formData});
+            console.log({responseData});
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async function postFormDataAsJson({url, formData}) {
+        const plainFormData = Object.fromEntries(formData.entries());
+        const formDataJsonString = JSON.stringify(plainFormData);
+
+        const fetchOptions = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: formDataJsonString,
+        };
+        const response = await fetch(url, fetchOptions)
+
+        if (!response.ok) {
+            const errorMessage = await response.text();
+            throw new Error(errorMessage);
+        }
+        else {
+            document.location = "http://localhost:5000/"
+        }
+        return response.json()
+    }
+
+    </script>
+{% endblock %}
+

@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container">
+    <div class="row justify-content-center mt-5">
+      <div class="col-md-6">
+        <div class="card">
+            {% if post %}
+                <form method="post">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Заголовок</label>
+                        <input type="text" value="{{ post.title }}" class="form-control" id="title" name="title" required>
+                    </div>
+                    <div class="mb-3">
+                        <textarea class="card-control" name="content" id="content" required rows="5">{{ post.content }}</textarea>
+                    </div>
+                    <div class="text-center">
+                        <button name="button" type="submit" class="btn btn-primary">Сохранить</button>
+                         <div id="errorMessage" style="display: none;" class="alert alert-danger"></div>
+                    </div>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    <script>
+     const exform = document.querySelector('form');
+    exform.addEventListener('submit', handleSubmit);
+
+    async function handleSubmit(event){
+        event.preventDefault();
+        const form = event.currentTarget;
+        const url = form.action;
+        try {
+            const formData = new FormData(form);
+            const responseData = await postFormDataAsJson({url, formData});
+            console.log({responseData});
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    async function postFormDataAsJson({url, formData}) {
+        const plainFormData = Object.fromEntries(formData.entries());
+        const formDataJsonString = JSON.stringify(plainFormData);
+
+        const fetchOptions = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: formDataJsonString,
+        };
+        const response = await fetch(url, fetchOptions)
+
+        if (!response.ok) {
+            const errorMessage = await response.text();
+            var errorMessageDiv = document.getElementById('errorMessage');
+            errorMessageDiv.textContent = 'Только владелец может менять свои посты ';
+            errorMessageDiv.style.display = 'block';
+        }
+        else {
+            document.location="http://localhost:5000/"
+        }
+        return response.json()
+    }
+
+    </script>
+{% endblock %}
+

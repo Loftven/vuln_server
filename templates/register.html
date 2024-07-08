@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <div class="container">
+    <div class="row justify-content-center mt-5">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h1 class="text-center">Регистрация</h1>
+          </div>
+          <div class="card-body">
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                <div class="alert alert-danger">
+                  <ul>
+                    {% for message in messages %}
+                      <li>{{ message }}</li>
+                    {% endfor %}
+                  </ul>
+                </div>
+              {% endif %}
+            {% endwith %}
+            <form action="http://localhost:5000/register" method="post">
+              <div class="mb-3">
+                <label for="username" class="form-label">Логин:</label>
+                <input type="text" class="form-control" oninput=checkParams() id="username" name="username" required>
+              </div>
+              <div class="mb-3">
+                <label for="password" class="form-label">Пароль:</label>
+                <input type="password" class="form-control" oninput=checkParams() id="password" name="password" autocomplete="off" required>
+              </div>
+              <div class="text-center">
+                <button name="button" onsubmit="handleSubmit()" type="submit" disabled class="btn btn-primary">Зарегистрироваться</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+    <script >
+    function checkParams(){
+        let name = document.getElementsByName('username')[0].value;
+        let password = document.getElementsByName('password')[0].value;
+        document.getElementsByName('button')[0].disabled = !(name.length > 0 && password.length > 0); };
+
+    const exform = document.querySelector('form');
+    exform.addEventListener('submit', handleSubmit);
+
+    async function handleSubmit(event){
+        event.preventDefault();
+        const form = event.currentTarget;
+        const url = form.action;
+        try {
+            const formData = new FormData(form);
+            const responseData = await postFormDataAsJson({url, formData});
+            console.log({responseData});
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    async function postFormDataAsJson({url, formData}) {
+        const plainFormData = Object.fromEntries(formData.entries());
+        const formDataJsonString = JSON.stringify(plainFormData);
+
+        const fetchOptions = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: formDataJsonString,
+        };
+        const response = await fetch(url, fetchOptions)
+
+        if (!response.ok) {
+            const errorMessage = await response.text();
+            throw new Error(errorMessage);
+        }
+        else {
+          document.location = 'http://localhost:5000/login'
+            {#console.log('error');#}
+        }
+        return response.json();
+    };
+
+    </script>
+{% endblock %}
