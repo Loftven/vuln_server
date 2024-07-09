@@ -7,5 +7,5 @@ Our company have some rules for keys.
 Key should start with <enc_key_for_production_'some_value'>
 some_value is hex encoded random string from value between 100 and 1000000.
 for example, let's imagine that random generator gives us 555555.
-Resulting key will be SHA2-256(enc_key_for_production_555555) = 'a333c35641c822595b13b48329e34970db38af994616c630f2ea576423dee05e'
+Resulting key will be enc_key_for_production_555555
 delete before deploying
