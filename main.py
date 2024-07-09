@@ -10,6 +10,7 @@ from models.jwt import BlocklistJwt
 from models.user import AuthorModel
 from models.post import PostModel
 import hashlib
+from flask_cors import CORS
 
 
 def create_app(db_url=None):
@@ -23,6 +24,7 @@ def create_app(db_url=None):
     app.config['JWT_COOKIE_CSRF_PROTECT'] = False
     db.init_app(app)
     jwt = JWTManager(app)
+    cors = CORS(app)
 
 
     @app.after_request
@@ -31,9 +33,12 @@ def create_app(db_url=None):
             exp_timestamp = get_jwt()["exp"]
             now = datetime.now(timezone.utc)
             target_timestamp = datetime.timestamp(now + timedelta(minutes=30))
+
             if target_timestamp > exp_timestamp:
                 access_token = create_access_token(identity=get_jwt_identity())
                 set_access_cookies(response, access_token)
+
+            response.headers['Access-Control-Allow-Origin'] = '*'
             return response
 
         except (RuntimeError, KeyError) as e:
